@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# BACK UP INCASE VS CODE CRASHES
-# HI
 # Author: K. Walsh <kwalsh@cs.holycross.edu>
 # Date: 15 January 2015
 # Updated: 17 September 2020 - update to python3, add classes
