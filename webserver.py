@@ -99,8 +99,8 @@ class Response:
 # global variables necessary for operation of the whisper app.
 class WhisperObjects:
     def __init__(self):
-        self.lock = threading.Condition()       # protects the following variables
-        self.topics = ["soccer", "fallbreak"]                        # 
+        lock = threading.Condition()
+        self.topics = ["soccer", "fallbreak"] 
         self.messages = [["#soccer was so fun!", "#soccer is hard"],["excited for #fallbreak"]]
         self.likes = [3,6]
         self.numMessages = [2,1]
@@ -630,11 +630,20 @@ def handle_http_post_message(req,conn):
     lines = req.body.split("\n",1)
     print(lines)
     if len(lines) != 2:
-        "There is an error with the message and tag lines presented."
-    tags = lines[0].split(" ")[1:]
-    message = lines[1].split(" ",1)
-    print(tags, message)
+        msg = "Unsupported format of message and tag lines."
+        return Response("400 BAD REQUEST", "text/pain", msg)  
 
+    tags = lines[0].split(" ")[1:]
+    if len(tags) == 0:
+        msg = "No topics menyioned in post. Post will be ignored."
+        return Response("200 OK", "text/pain", msg)
+
+    message = lines[1].split(" ",1)
+    if message == "":
+        msg = "Empty message. Post will be ignored."
+        return Response("200 OK", "text/pain", msg)
+    print(tags, message)
+    
     # for all tags mentioned in the tweet
     for i in len(tags):
         if tags[i] in data.topics:
