@@ -601,20 +601,20 @@ def handle_http_get_whoami(req, conn):
 # when issued a GET request for the home page of the whisper app, this function retrieves the
 # updated global variables
 def handle_http_get_topic(req, conn):
-    print(req.path)
+    print(req.path)                                         # error checking
     log("Handling GET topic request through whisper...")
 
-    if "?" in req.path:
-        req.path, params = req.path.split("?", 1)
+    if "?" in req.path:                                     
+        req.path, params = req.path.split("?", 1)           # separate path and its parameters
         print(params)
-        if "=" in params:
+        if "=" in params:                                   # take off the "variable="
             junk, version = params.split("=",1)
             version = int(version)
-            print(version)
+            print(version)                                  # get the version number
     else:
         print("There is no version number.")
 
-    if version == 0:
+    if version == 0:                                        # if this is the first time u are loading this page
         msg = f"{data.versHome}\n"
         for i in range(len(data.topics)):
             msg += f"{data.numMessages[i]} {data.likes[i]} {data.topics[i]}\n"
@@ -635,20 +635,17 @@ def handle_http_post_message(req,conn):
     message = lines[1].split(" ",1)
     print(tags, message)
 
-    for len(tags):
+    # for all tags mentioned in the tweet
+    for i in len(tags):
         if tags[i] in data.topics:
-            # find what index in data.topics this topic is
-            temp = data.topics(i) 
-            # add the message to data.messages[index]
-            data.messages += tags[i]
-            # add onto the number of messages per this topic
-            data.numMessages += 1
-        else #NOT
-             # append new tag to the list 
-            tags[i].append(data.topics)
-            # grab its index with len(data.topics)
-            index = len(data.topics)
-            # data.likes[index] = 0, data.numMessages[index] = 1, data.messages[index] = message
+            index = data.topics.index(tags[i])      # find what index in data.topics this topic is
+            data.messages[index].append(message)    # add the message to data.messages[index]
+            data.numMessages[index] += 1            # add onto the number of messages per this topic
+        else: 
+            data.topics.append(tags[i])             # append new tag to the list 
+            data.likes.append(0)                    # add number of likes for this topic, 0
+            data.numMessages.append(1)              # add number of messages abt this topic, 1
+            data.messages.append(message)           # add message to list of msgs abt this topic
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
