@@ -100,7 +100,14 @@ class Response:
 class WhisperObjects:
     def __init__(self):
         self.lock = threading.Condition()       # protects the following variables
-        self.topics = None                      # 
+        self.topics = ["soccer", "fallbreak"]                        # 
+        self.messages = [["#soccer was so fun!", "#soccer is hard"],["excited for #fallbreak"]]
+        self.likes = [3,6]
+        self.numMessages = [2,1]
+        self.versNum = [0,0]
+        self.versHome = 0
+
+data = WhisperObjects()
 
 # Helper function to check if a string looks like a common IPv4 address. Note:
 # This is intentionally picky, only accepting the most common
@@ -594,12 +601,37 @@ def handle_http_get_whoami(req, conn):
     msg += "</html>"
     return Response("200 OK", "text/html", msg)
 
-def handle_http_get_topic(req, conn, params):
+# when issued a GET request for the home page of the whisper app, this function retrieves the
+# updated global variables
+def handle_http_get_topic(req, conn):
+    print(req.path)
     log("Handling GET topic request through whisper...")
+<<<<<<< HEAD
     version = req.version
     resp = Response("200 OK", "text/plain",version)
     return resp 
+=======
+    if "?" in req.path:
+        req.path, params = req.path.split("?", 1)
+        print(params)
+        if "=" in params:
+            junk, version = params.split("=",1)
+            version = int(version)
+            print(version)
+    else:
+        print("There is no version number.")
+>>>>>>> 8f50c7d65d3d412aaa2071aed5c0db9e9319f66b
 
+    if version == 0:
+        msg = f"{data.versHome}\n"
+        for i in range(len(data.topics)):
+            msg += f"{data.numMessages[i]} {data.likes[i]} {data.topics[i]}\n"
+        print("The message is ")
+        print(msg)
+        return Response("200 OK", "text/pain", msg)
+    else:
+        while True:
+            pass
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
@@ -612,8 +644,8 @@ def handle_http_get(req, conn):
         resp = handle_http_get_quote()
     elif req.path == "/whoami":
         resp = handle_http_get_whoami(req, conn)
-    elif req.path.endswith("/topics"):
-        resp = handle_http_get_topic()
+    elif req.path.startswith("/whisper/topics"):
+        resp = handle_http_get_topic(req,conn)
     elif req.path.endswith("/"):
         resp = handle_http_get_file(req.path + "index.html")
     else:
