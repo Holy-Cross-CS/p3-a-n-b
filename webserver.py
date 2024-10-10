@@ -603,6 +603,7 @@ def handle_http_get_whoami(req, conn):
 def handle_http_get_topic(req, conn):
     print(req.path)
     log("Handling GET topic request through whisper...")
+
     if "?" in req.path:
         req.path, params = req.path.split("?", 1)
         print(params)
