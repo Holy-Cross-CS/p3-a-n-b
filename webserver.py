@@ -601,6 +601,7 @@ def handle_http_get(req, conn):
         resp = handle_http_get_quote()
     elif req.path == "/whoami":
         resp = handle_http_get_whoami(req, conn)
+        # WHISPER
     elif req.path.endswith("/"):
         resp = handle_http_get_file(req.path + "index.html")
     else:
@@ -692,6 +693,7 @@ log(f"    http://{server_host}:{server_port}/")
 log(f"    http://{server_host}:{server_port}/welcome.html")
 log(f"    http://{server_host}:{server_port}/status.html")
 log(f"    http://{server_host}:{server_port}/hello")
+log(f"    http://{server_host}:{server_port}/whisper.html")
 log("Ready for connections...")
 
 try:
