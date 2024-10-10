@@ -626,6 +626,14 @@ def handle_http_get_topic(req, conn):
             pass
 
 def handle_http_post_message(req,conn):
+
+    global data.topics
+    global data.messages
+    global data.likes
+    global data.numMessages
+    global data.versNum
+    global data.versHome
+
     print("Handling POST message request...")
     lines = req.body.split("\n",1)
     print(lines)
@@ -643,18 +651,25 @@ def handle_http_post_message(req,conn):
         msg = "Empty message. Post will be ignored."
         return Response("200 OK", "text/pain", msg)
     print(tags, message)
-    
+
     # for all tags mentioned in the tweet
-    for i in len(tags):
-        if tags[i] in data.topics:
-            index = data.topics.index(tags[i])      # find what index in data.topics this topic is
-            data.messages[index].append(message)    # add the message to data.messages[index]
-            data.numMessages[index] += 1            # add onto the number of messages per this topic
-        else: 
-            data.topics.append(tags[i])             # append new tag to the list 
-            data.likes.append(0)                    # add number of likes for this topic, 0
-            data.numMessages.append(1)              # add number of messages abt this topic, 1
-            data.messages.append(message)           # add message to list of msgs abt this topic
+    with lock:
+        for i in len(tags):
+            if tags[i] in data.topics:
+                index = data.topics.index(tags[i])      # find what index in data.topics this topic is
+                data.messages[index].append(message)    # add the message to data.messages[index]
+                lock.notify_all()
+                data.numMessages[index] += 1            # add onto the number of messages per this topic
+                lock.notify_all()
+            else: 
+                data.topics.append(tags[i])             # append new tag to the list 
+                lock.notify_all()
+                data.likes.append(0)                    # add number of likes for this topic, 0
+                lock.notify_all()
+                data.numMessages.append(1)              # add number of messages abt this topic, 1
+                lock.notify_all()
+                data.messages.append(message)           # add message to list of msgs abt this topic
+                lock.notify_all()
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
