@@ -728,6 +728,7 @@ log(f"    http://{server_host}:{server_port}/")
 log(f"    http://{server_host}:{server_port}/welcome.html")
 log(f"    http://{server_host}:{server_port}/status.html")
 log(f"    http://{server_host}:{server_port}/hello")
+log(f"    http://{server_host}:{server_port}/whisper.html")
 log("Ready for connections...")
 
 try:
