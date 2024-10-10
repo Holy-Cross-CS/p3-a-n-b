@@ -401,10 +401,7 @@ def handle_one_http_request(conn):
     if req.method == "GET":
         resp = handle_http_get(req, conn)
     elif req.method == "POST" or req.method == "PUT":
-        log("HTTP method '%s' is not yet supported by this server" % (req.method))
-        resp = Response("405 METHOD NOT ALLOWED",
-                "text/plain",
-                "PUT and POST methods not yet supported")
+        resp = handle_http_post(req, conn)
     else:
         log("HTTP method '%s' is not recognized by this server" % (req.method))
         resp = Response("405 METHOD NOT ALLOWED",
@@ -627,6 +624,26 @@ def handle_http_get_topic(req, conn):
         while True:
             pass
 
+def handle_http_post_message(req,conn):
+    print("Handling POST message request...")
+    lines = req.body.split("\n",1)
+    print(lines)
+    if len(lines) != 2:
+        "There is an error with the message and tag lines presented."
+    tags = lines[0].split(" ")[1:]
+    message = lines[1].split(" ",1)
+    print(tags, message)
+
+    for len(tags):
+        if tags[i] is not in data.topics:
+            # append new tag to the list 
+            # grab its index with len(data.topics)
+            # data.likes[index] = 0, data.numMessages[index] = 1, data.messages[index] = message
+        else 
+            # find what index in data.topics this topic is
+            # add the message to data.messages[index]
+            # add onto the number of messages per this topic
+
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
     # Generate a response
@@ -645,6 +662,10 @@ def handle_http_get(req, conn):
     else:
         resp = handle_http_get_file(req.path)
     return resp
+
+def handle_http_post(req,conn):
+    if req.path.startswith("/whisper/messages"):
+        resp = handle_http_post_message(req,conn)
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
 # each one, and sends back appropriate responses to the client.
