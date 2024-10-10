@@ -96,6 +96,11 @@ class Response:
         self.body = body             # a bytes object, or a string
         self.cookies = None          # a list of name=value strings (optional)
 
+# global variables necessary for operation of the whisper app.
+class WhisperObjects:
+    def __init__(self):
+        self.lock = threading.Condition()       # protects the following variables
+        self.topics = None                      # 
 
 # Helper function to check if a string looks like a common IPv4 address. Note:
 # This is intentionally picky, only accepting the most common
@@ -589,6 +594,10 @@ def handle_http_get_whoami(req, conn):
     msg += "</html>"
     return Response("200 OK", "text/html", msg)
 
+def handle_http_get_topic(req, conn, params):
+    log("Handling GET topic request through whisper...")
+    version = req.version
+
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
@@ -601,6 +610,8 @@ def handle_http_get(req, conn):
         resp = handle_http_get_quote()
     elif req.path == "/whoami":
         resp = handle_http_get_whoami(req, conn)
+    elif req.path.endswith("/topics"):
+        resp = handle_http_get_topic()
     elif req.path.endswith("/"):
         resp = handle_http_get_file(req.path + "index.html")
     else:
