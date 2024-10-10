@@ -100,7 +100,7 @@ class Response:
 class WhisperObjects:
     def __init__(self):
         self.lock = threading.Condition()       # protects the following variables
-        self.topics = ["#soccer", "#fallbreak"]                        # 
+        self.topics = ["soccer", "fallbreak"]                        # 
         self.messages = [["#soccer was so fun!", "#soccer is hard"],["excited for #fallbreak"]]
         self.likes = [3,6]
         self.numMessages = [2,1]
@@ -611,14 +611,17 @@ def handle_http_get_topic(req, conn):
         print(params)
         if "=" in params:
             junk, version = params.split("=",1)
+            version = int(version)
             print(version)
     else:
         print("There is no version number.")
 
     if version == 0:
-        msg = "{data.versHome}\n"
-        for i in range(data.topics):
-            msg += "{data.numMessages[i]} " + "{data.numLikes[i]} " + "{data.topics[i]}\n"
+        msg = f"{data.versHome}\n"
+        for i in range(len(data.topics)):
+            msg += f"{data.numMessages[i]} {data.likes[i]} {data.topics[i]}\n"
+        print("The message is ")
+        print(msg)
         return Response("200 OK", "text/pain", msg)
     else:
         while True:
