@@ -606,11 +606,7 @@ def handle_http_get_whoami(req, conn):
 def handle_http_get_topic(req, conn):
     print(req.path)
     log("Handling GET topic request through whisper...")
-<<<<<<< HEAD
-    version = req.version
-    resp = Response("200 OK", "text/plain",version)
-    return resp 
-=======
+
     if "?" in req.path:
         req.path, params = req.path.split("?", 1)
         print(params)
@@ -620,7 +616,6 @@ def handle_http_get_topic(req, conn):
             print(version)
     else:
         print("There is no version number.")
->>>>>>> 8f50c7d65d3d412aaa2071aed5c0db9e9319f66b
 
     if version == 0:
         msg = f"{data.versHome}\n"
