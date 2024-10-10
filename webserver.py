@@ -627,6 +627,7 @@ def handle_http_get_topic(req, conn):
 
 def handle_http_post_message(req,conn):
 
+    global lock
     global data.topics
     global data.messages
     global data.likes
