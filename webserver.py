@@ -636,14 +636,19 @@ def handle_http_post_message(req,conn):
     print(tags, message)
 
     for len(tags):
-        if tags[i] is not in data.topics:
-            # append new tag to the list 
-            # grab its index with len(data.topics)
-            # data.likes[index] = 0, data.numMessages[index] = 1, data.messages[index] = message
-        else 
+        if tags[i] in data.topics:
             # find what index in data.topics this topic is
+            temp = data.topics(i) 
             # add the message to data.messages[index]
+            data.messages += tags[i]
             # add onto the number of messages per this topic
+            data.numMessages += 1
+        else #NOT
+             # append new tag to the list 
+            tags[i].append(data.topics)
+            # grab its index with len(data.topics)
+            index = len(data.topics)
+            # data.likes[index] = 0, data.numMessages[index] = 1, data.messages[index] = message
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
