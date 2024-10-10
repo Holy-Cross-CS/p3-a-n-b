@@ -597,6 +597,8 @@ def handle_http_get_whoami(req, conn):
 def handle_http_get_topic(req, conn, params):
     log("Handling GET topic request through whisper...")
     version = req.version
+    resp = Response("200 OK", "text/plain",version)
+    return resp 
 
 
 # handle_http_get() returns an appropriate response for a GET request
