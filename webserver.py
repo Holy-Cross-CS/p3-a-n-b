@@ -99,7 +99,7 @@ class Response:
 # global variables necessary for operation of the whisper app.
 class WhisperObjects:
     def __init__(self):
-        lock = threading.Condition()
+        self.lock = threading.Condition()
         self.topics = ["soccer", "fallbreak"] 
         self.messages = [["#soccer was so fun!", "#soccer is hard"],["excited for #fallbreak"]]
         self.likes = [3,6]
@@ -613,17 +613,17 @@ def handle_http_get_topic(req, conn):
             print(version)                                  # get the version number
     else:
         print("There is no version number.")
-
-    if version == 0:                                        # if this is the first time u are loading this page
+    with data.lock:
+        while version > 0: 
+            data.lock.wait()     # if not, wait until notified that something changed 
         msg = f"{data.versHome}\n"
         for i in range(len(data.topics)):
             msg += f"{data.numMessages[i]} {data.likes[i]} {data.topics[i]}\n"
         print("The message is ")
         print(msg)
-        return Response("200 OK", "text/pain", msg)
-    else:
-        while True:
-            pass
+        return Response("200 OK", "text/plain", msg)
+    
+        
 
 def handle_http_post_message(req,conn):
     print("Handling POST message request...")
@@ -631,14 +631,14 @@ def handle_http_post_message(req,conn):
     print(lines)
     if len(lines) != 2:
         msg = "Unsupported format of message and tag lines."
-        return Response("400 BAD REQUEST", "text/pain", msg)  
+        return Response("400 BAD REQUEST", "text/plain", msg)  
 
     tags = lines[0].split(" ")[1:]
     message = lines[1].split(" ",1)
     print(tags, message)
 
     # for all tags mentioned in the tweet
-    for i in len(tags):
+    for i in range(len(tags)):
         if tags[i] in data.topics:
             index = data.topics.index(tags[i])      # find what index in data.topics this topic is
             data.messages[index].append(message)    # add the message to data.messages[index]
@@ -648,6 +648,8 @@ def handle_http_post_message(req,conn):
             data.likes.append(0)                    # add number of likes for this topic, 0
             data.numMessages.append(1)              # add number of messages abt this topic, 1
             data.messages.append(message)           # add message to list of msgs abt this topic
+    msg = "success"
+    return Response("200 OK", "text/plain", msg)
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
