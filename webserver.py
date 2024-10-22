@@ -704,7 +704,7 @@ def handle_http_post_likes(req,conn):
         data.lock.notify_all()                              # notify everyone
         msg = "success"                         
         return Response("200 OK", "text/plain", msg)
-        
+
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
     # Generate a response
@@ -730,7 +730,7 @@ def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
     elif req.path.startswith("/whisper/likes"):
-        resp = handle_http_post_likes(req,conn)
+        resp = handle_http_post_likes(req, conn)
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
