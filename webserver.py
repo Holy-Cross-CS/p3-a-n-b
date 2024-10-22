@@ -625,27 +625,28 @@ def handle_http_get_topic(req, conn):
         while True:
             pass
 
-def handle_http_post_message(req,conn):
+def handle_http_post_message(req, conn):
     print("Handling POST message request...")
-    lines = req.body.split("\n",1)
+    lines = req.body.split("\n", 1)
     print(lines)
     if len(lines) != 2:
         "There is an error with the message and tag lines presented."
     tags = lines[0].split(" ")[1:]
-    message = lines[1].split(" ",1)
+    message = lines[1].split(" ", 1)
     print(tags, message)
 
     # for all tags mentioned in the tweet
-    for i in len(tags):
+    for i in range(len(tags)):
         if tags[i] in data.topics:
             index = data.topics.index(tags[i])      # find what index in data.topics this topic is
+            print(index)
             data.messages[index].append(message)    # add the message to data.messages[index]
             data.numMessages[index] += 1            # add onto the number of messages per this topic
         else: 
             data.topics.append(tags[i])             # append new tag to the list 
-            data.likes.append(0)                    # add number of likes for this topic, 0
+            data.likes.append(1)                    # add number of likes for this topic, 0
             data.numMessages.append(1)              # add number of messages abt this topic, 1
-            data.messages.append(message)           # add message to list of msgs abt this topic
+            data.messages.append([message])         # add message to list of msgs abt this topic
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
@@ -669,6 +670,7 @@ def handle_http_get(req, conn):
 def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
+    return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
 # each one, and sends back appropriate responses to the client.
