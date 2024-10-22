@@ -682,6 +682,29 @@ def handle_http_post_message(req,conn):
         msg = "success"
         return Response("200 OK", "text/plain", msg)
 
+# retrieves the number of likes per particular topic
+def handle_http_post_likes(req,conn):
+    print("Handling post topic like request...")
+
+    if "?" in req.path:                                     
+        req.path, params = req.path.split("?", 1)           # separate path and its parameters
+        print(params)
+        if "=" in params:                                   # take off the "variable="
+            junk, version = params.split("=",1)
+            version = int(version)
+            print(version)                                  # get the version number
+        topic = req.path.rsplit('/', 1)[-1]                 # identify topic via path
+        topicIndex = data.topics.index(topic)               # get the index of this topic in the list of topics
+        if topicIndex == -1:
+            return Response("404 NOT FOUND", "text/plain", "Never heard of this topic!")
+
+    with data.lock:
+        data.likes[topicIndex] += 1                         # increment the number of likes corresponding with that topic
+        data.versHome += 1                                  # update the home feed ver number
+        data.lock.notify_all()                              # notify everyone
+        msg = "success"                         
+        return Response("200 OK", "text/plain", msg)
+        
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
     # Generate a response
@@ -706,6 +729,8 @@ def handle_http_get(req, conn):
 def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
+    elif req.path.startswith("/whisper/likes"):
+        resp = handle_http_post_likes(req,conn)
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
