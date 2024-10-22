@@ -614,7 +614,7 @@ def handle_http_get_topic(req, conn):
     else:
         print("There is no version number.")
     with data.lock:
-        while version > 0: 
+        while version > data.versHome: 
             data.lock.wait()     # if not, wait until notified that something changed 
         msg = f"{data.versHome}\n"
         for i in range(len(data.topics)):
@@ -623,7 +623,33 @@ def handle_http_get_topic(req, conn):
         print(msg)
         return Response("200 OK", "text/plain", msg)
     
-        
+def handle_http_get_feed(req, conn):
+    print(req.path)                                         # error checking
+    log("Handling GET topic request through whisper...")
+
+
+    if "?" in req.path:                                     
+        req.path, params = req.path.split("?", 1)           # separate path and its parameters
+        print(params)
+        if "=" in params:                                   # take off the "variable="
+            junk, version = params.split("=",1)
+            version = int(version)
+            print(version)                                  # get the version number
+        topic = req.path.rsplit('/', 1)[-1]
+        topicIndex = data.topics.index(topic)
+        if topicIndex == -1:
+            return Response("404 NOT FOUND", "text/plain", "Never heard of this topic!")
+    else:
+        print("There is no version number.")
+    with data.lock:
+        while version > data.versNum[topicIndex]: 
+            data.lock.wait()     # if not, wait until notified that something changed 
+        msg = f"{data.versNum[topicIndex]}\n"
+        for i in range(len(data.messages[topicIndex])):
+            msg += f"- {data.messages[topicIndex][i]}\n"
+        print("The message is ")
+        print(msg)
+        return Response("200 OK", "text/plain", msg)
 
 def handle_http_post_message(req,conn):
     print("Handling POST message request...")
@@ -633,23 +659,28 @@ def handle_http_post_message(req,conn):
         msg = "Unsupported format of message and tag lines."
         return Response("400 BAD REQUEST", "text/plain", msg)  
 
-    tags = lines[0].split(" ")[1:]
-    message = lines[1].split(" ",1)
-    print(tags, message)
+    with data.lock:
+        tags = lines[0].split(" ")[1:]
+        message = lines[1].split(" ", 1)[1]
+        print(tags, message)
 
-    # for all tags mentioned in the tweet
-    for i in range(len(tags)):
-        if tags[i] in data.topics:
-            index = data.topics.index(tags[i])      # find what index in data.topics this topic is
-            data.messages[index].append(message)    # add the message to data.messages[index]
-            data.numMessages[index] += 1            # add onto the number of messages per this topic
-        else: 
-            data.topics.append(tags[i])             # append new tag to the list 
-            data.likes.append(0)                    # add number of likes for this topic, 0
-            data.numMessages.append(1)              # add number of messages abt this topic, 1
-            data.messages.append(message)           # add message to list of msgs abt this topic
-    msg = "success"
-    return Response("200 OK", "text/plain", msg)
+        # for all tags mentioned in the tweet
+        for i in range(len(tags)):
+            if tags[i] in data.topics:
+                index = data.topics.index(tags[i])      # find what index in data.topics this topic is
+                data.messages[index].append(message)    # add the message to data.messages[index]
+                data.numMessages[index] += 1            # add onto the number of messages per this topic
+                data.versNum[index] += 1
+            else: 
+                data.topics.append(tags[i])             # append new tag to the list 
+                data.likes.append(0)                    # add number of likes for this topic, 0
+                data.numMessages.append(1)              # add number of messages abt this topic, 1
+                data.messages.append([message])           # add message to list of msgs abt this topic
+                data.versNum.append(0)
+        data.versHome += 1
+        data.lock.notify_all()
+        msg = "success"
+        return Response("200 OK", "text/plain", msg)
 
 # handle_http_get() returns an appropriate response for a GET request
 def handle_http_get(req, conn):
@@ -664,6 +695,8 @@ def handle_http_get(req, conn):
         resp = handle_http_get_whoami(req, conn)
     elif req.path.startswith("/whisper/topics"):
         resp = handle_http_get_topic(req,conn)
+    elif req.path.startswith("/whisper/feed"):
+        resp = handle_http_get_feed(req, conn)
     elif req.path.endswith("/"):
         resp = handle_http_get_file(req.path + "index.html")
     else:
