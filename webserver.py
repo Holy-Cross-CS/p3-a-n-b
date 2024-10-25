@@ -697,8 +697,12 @@ def handle_http_post_like(req,conn):
         topicIndex = data.topics.index(topic)               # get the index of this topic in the list of topics
         if topicIndex == -1:
             return Response("404 NOT FOUND", "text/plain", "Never heard of this topic!")
+    else:
+        print("There is version number.")
 
     with data.lock:
+        topic = req.path.rsplit('/', 1)[-1]                 # identify topic via path
+        topicIndex = data.topics.index(topic)               # get the index of this topic in the list of topics
         data.likes[topicIndex] += 1                         # increment the number of likes corresponding with that topic
         data.versHome += 1                                  # update the home feed ver number
         data.lock.notify_all()                              # notify everyone
@@ -730,9 +734,10 @@ def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
     elif req.path.startswith("/whisper/like"):
+        print("We got to the right http post option")
         resp = handle_http_post_like(req, conn)
     else: 
-        resp = 
+        resp = Response("404 NOT FOUND","text/plain","Function is not the list of post functions.")
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
