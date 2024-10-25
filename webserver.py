@@ -683,7 +683,7 @@ def handle_http_post_message(req,conn):
         return Response("200 OK", "text/plain", msg)
 
 # retrieves the number of likes per particular topic
-def handle_http_post_likes(req,conn):
+def handle_http_post_like(req,conn):
     print("Handling post topic like request...")
 
     if "?" in req.path:                                     
@@ -729,8 +729,8 @@ def handle_http_get(req, conn):
 def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
-    elif req.path.startswith("/whisper/likes"):
-        resp = handle_http_post_likes(req, conn)
+    elif req.path.startswith("/whisper/like"):
+        resp = handle_http_post_like(req, conn)
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
