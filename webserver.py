@@ -731,6 +731,8 @@ def handle_http_post(req,conn):
         resp = handle_http_post_message(req,conn)
     elif req.path.startswith("/whisper/like"):
         resp = handle_http_post_like(req, conn)
+    else: 
+        resp = 
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
