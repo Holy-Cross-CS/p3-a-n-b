@@ -701,6 +701,7 @@ def handle_http_post_like(req,conn):
         print("There is version number.")
 
     with data.lock:
+        topic = req.path.rsplit('/', 1)[-1]                 # identify topic via path
         topicIndex = data.topics.index(topic)               # get the index of this topic in the list of topics
         data.likes[topicIndex] += 1                         # increment the number of likes corresponding with that topic
         data.versHome += 1                                  # update the home feed ver number
