@@ -730,9 +730,10 @@ def handle_http_post(req,conn):
     if req.path.startswith("/whisper/messages"):
         resp = handle_http_post_message(req,conn)
     elif req.path.startswith("/whisper/like"):
+        print("We got to the right http post option")
         resp = handle_http_post_like(req, conn)
     else: 
-        resp = 
+        resp = Response("404 NOT FOUND","text/plain","Function is not the list of post functions.")
     return resp
 
 # handle_http_connection() reads one or more HTTP requests from a client, parses
